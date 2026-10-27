@@ -1,0 +1,7 @@
+# 依赖不进仓库，克隆后 npm install 即可
+node_modules/
+
+# 日志与临时文件
+*.log
+.DS_Store
+Thumbs.db

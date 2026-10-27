@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人主页</title>
+<style>
+  :root {
+    --bg: #FAFAFA;
+    --card: #FFFFFF;
+    --ink: #000000;
+    --ink-soft: #333333;
+    --ink-muted: #6B6B6B;
+    --line: #E5E5E5;
+    --radius: 8px;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Courier New", monospace;
+    --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- 导航 ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(250, 250, 250, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    max-width: 960px; margin: 0 auto; padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-family: var(--mono); font-size: 14px; color: var(--ink); text-decoration: none; letter-spacing: 0.02em; }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    font-size: 14px; color: var(--ink-muted); text-decoration: none;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  /* ---------- 首屏 ---------- */
+  header { padding: 110px 0 88px; }
+  .kicker { font-family: var(--mono); font-size: 14px; color: var(--ink-muted); margin-bottom: 22px; }
+  h1 {
+    font-size: clamp(40px, 7vw, 68px);
+    font-weight: 700; line-height: 1.15; letter-spacing: -0.01em;
+    margin-bottom: 20px;
+  }
+  .intro { font-size: 20px; color: var(--ink-muted); margin-bottom: 14px; max-width: 720px; }
+  .edu-line { font-size: 16px; color: var(--ink-muted); margin-bottom: 32px; }
+  .motto { display: flex; gap: 20px; align-items: stretch; padding-left: 2px; }
+  .motto .bar { width: 2px; background: var(--ink); flex-shrink: 0; }
+  .motto p { font-size: 18px; font-weight: 500; }
+
+  /* ---------- 区块通用 ---------- */
+  section { padding: 64px 0; scroll-margin-top: 76px; }
+  footer { border-top: 1px solid var(--line); padding: 72px 0 48px; scroll-margin-top: 76px; }
+  .sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+  .sec-num { font-family: var(--mono); font-size: 14px; color: var(--ink-muted); }
+  h2 { font-size: 28px; font-weight: 600; }
+  .sec-rule { border: 0; border-top: 1px solid var(--line); margin: 16px 0 40px; }
+
+  /* ---------- 技能 ---------- */
+  .skill-group { position: relative; margin-bottom: 36px; }
+  .skill-group:last-child { margin-bottom: 0; }
+  .skill-group h3 { font-size: 16px; font-weight: 500; margin-bottom: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .chip {
+    position: relative;
+    font-family: var(--mono); font-size: 13px; color: var(--ink-muted);
+    background: var(--card); border: 1px solid var(--line); border-radius: 4px;
+    padding: 7px 14px;
+    transition: border-color .2s, color .2s;
+  }
+  .chip:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ---------- 作品 ---------- */
+  .projects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .project {
+    position: relative;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 28px; display: flex; flex-direction: column; gap: 14px;
+    transition: border-color .2s, transform .2s;
+  }
+  .project:hover { border-color: #CCCCCC; transform: translateY(-2px); }
+  .project .tag { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
+  .project h3 { font-size: 18px; font-weight: 600; line-height: 1.45; }
+  .project p { font-size: 14px; color: var(--ink-muted); line-height: 1.7; flex-grow: 1; }
+  .project .tech { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+
+  /* ---------- 个人评价 ---------- */
+  .eval-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 32px; display: flex; flex-direction: column; gap: 16px;
+  }
+  .eval-card p { font-size: 15px; color: var(--ink-soft); line-height: 1.85; }
+
+  /* ---------- 兴趣爱好 ---------- */
+  .hobbies { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .hobby {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 18px; font-size: 15px; color: var(--ink-soft);
+    transition: border-color .2s;
+  }
+  .hobby:hover { border-color: var(--ink); }
+  .hobby .icon { display: inline-flex; width: 18px; height: 18px; }
+  .hobby .icon svg { width: 18px; height: 18px; stroke: var(--ink); }
+
+  /* ---------- 教育经历 ---------- */
+  .edu-item { display: flex; gap: 40px; }
+  .edu-item .years { font-family: var(--mono); font-size: 14px; color: var(--ink-muted); white-space: nowrap; padding-top: 3px; }
+  .edu-item h3 { font-size: 18px; font-weight: 500; margin-bottom: 8px; }
+  .edu-item p { font-size: 14px; color: var(--ink-muted); line-height: 1.7; margin-bottom: 6px; }
+
+  /* ---------- 页脚 ---------- */
+  footer h2 { font-size: 22px; margin-bottom: 24px; }
+  .contact { display: flex; flex-wrap: wrap; gap: 16px 40px; margin-bottom: 32px; }
+  .contact a, .contact span.cline {
+    font-family: var(--mono); font-size: 14px; color: var(--ink);
+    text-decoration: underline; text-underline-offset: 4px;
+  }
+  .contact span.cline { text-decoration: none; }
+  .copyright { font-family: var(--mono); font-size: 13px; color: var(--ink-muted); }
+
+  /* ---------- 区块编辑按钮（右下角） ---------- */
+  .block-controls { display: flex; justify-content: flex-end; gap: 8px; margin-top: 36px; }
+  .util-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; align-items: center; }
+  .api-status { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-right: auto; }
+  .blk-btn {
+    font-family: var(--mono); font-size: 12px;
+    padding: 7px 18px;
+    background: var(--card); color: var(--ink-muted);
+    border: 1px solid var(--line); border-radius: 4px;
+    cursor: pointer;
+    transition: border-color .2s, color .2s, background .2s;
+  }
+  .blk-btn:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
+  .blk-btn:disabled { opacity: .55; cursor: not-allowed; }
+  .blk-btn.save-ready { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* ---------- 编辑态 ---------- */
+  .sec-editing [data-path] { cursor: text; border-radius: 2px; }
+  .sec-editing [data-path]:hover { box-shadow: 0 0 0 1px #C8C8C8; }
+  .sec-editing [data-path]:focus { box-shadow: 0 0 0 2px var(--ink); outline: none; }
+  .del, .add, .icon-cycle {
+    display: none;
+    font-family: var(--mono); font-size: 12px; line-height: 1;
+    border: 1px dashed #BBBBBB; background: #fff; color: var(--ink-muted);
+    cursor: pointer; border-radius: 4px;
+    align-items: center; justify-content: center;
+  }
+  .sec-editing .del, .sec-editing .add, .sec-editing .icon-cycle { display: inline-flex; }
+  .del:hover, .add:hover { border-color: var(--ink); color: var(--ink); }
+  .del { width: 18px; height: 18px; position: absolute; top: -7px; right: -7px; }
+  .add { padding: 8px 14px; font-size: 13px; color: var(--ink-muted); }
+  .icon-cycle { width: 18px; height: 18px; border: none; background: transparent; }
+
+  /* ---------- 页脚联系方式条目（编辑模式：× 删除 / ↗ 切换链接 / + 添加） ---------- */
+  .cwrap { position: relative; display: inline-flex; }
+  .ctoggle {
+    position: absolute; top: -7px; left: -7px;
+    width: 18px; height: 18px;
+    font-family: var(--mono); font-size: 11px; line-height: 1;
+    display: none; align-items: center; justify-content: center;
+    border: 1px dashed #BBBBBB; background: #fff; color: var(--ink-muted);
+    cursor: pointer; border-radius: 4px;
+  }
+  .sec-editing .ctoggle { display: inline-flex; }
+  .ctoggle.on { border-style: solid; border-color: var(--ink); color: var(--ink); }
+  .ctoggle:hover { border-color: var(--ink); color: var(--ink); }
+
+  #toast {
+    position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%);
+    background: var(--ink); color: #fff;
+    font-size: 14px; padding: 10px 22px; border-radius: 6px;
+    opacity: 0; pointer-events: none; transition: opacity .25s;
+    z-index: 60;
+  }
+  #toast.show { opacity: .92; }
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width: 860px) {
+    .projects { grid-template-columns: 1fr; }
+    .edu-item { flex-direction: column; gap: 8px; }
+    header { padding: 72px 0 56px; }
+    .nav-links { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="#" id="logo"></a>
+    <div class="nav-links" id="navLinks"></div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap" id="heroWrap"></div>
+</header>
+
+<main class="wrap">
+  <section id="skills"></section>
+  <section id="projects"></section>
+  <section id="eval"></section>
+  <section id="hobbies"></section>
+  <section id="education"></section>
+</main>
+
+<footer id="contact">
+  <div class="wrap" id="footerWrap"></div>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+ * 站点配置：永久修改就改这里，保存刷新即可
+ * 页面上每个区块左下角有"编辑 / 保存"按钮，可在线改内容，
+ * 保存写入浏览器 localStorage（换设备请用页脚"导出配置"固化）
+ * ========================================================= */
+const DEFAULT_SITE = {
+  logo: "PORTFOLIO · 个人主页",
+  hero: {
+    kicker: "HELLO, WORLD. 你好，这里是我的小站",
+    name: "你好，我是林知远",              // TODO: 替换姓名
+    intro: "一名热爱写代码的计算机专业本科生，喜欢把想法做成能跑起来的东西。",
+    school: "××大学 · 计算机科学与技术 · 2023 级本科在读",  // TODO: 替换学校
+    motto: "座右铭：把简单的事做到极致，就是不简单。"
+  },
+  skills: {
+    title: "专业技能",
+    groups: [
+      { title: "后端开发", chips: ["Java", "Spring Boot", "MyBatis-Plus", "MySQL", "Redis"] },
+      { title: "前端开发", chips: ["Vue 3", "Element Plus", "JavaScript", "HTML / CSS"] },
+      { title: "数据库与工具", chips: ["Git", "Docker", "Linux", "Maven", "IDEA"] }
+    ]
+  },
+  projects: {
+    title: "我的作品",
+    items: [
+      {
+        tag: "2026 · 毕业设计",
+        title: "电商 SaaS 多商家入驻管理系统",
+        desc: "前后端分离的多商家入驻平台，覆盖店铺管理、商品 SKU、订单流转与简化售后，支持 RBAC 权限管理。",
+        tech: "Spring Boot 3 / Vue 3 / MySQL 8 / JWT"
+      },
+      {
+        tag: "2025 · 课程设计",
+        title: "校园二手交易平台",
+        desc: "面向校内学生的闲置物品交易系统，支持商品发布、站内搜索与留言沟通，独立完成设计与开发。",
+        tech: "SSM / JSP / MySQL"
+      },
+      {
+        tag: "2025 · 个人项目",
+        title: "个人博客系统",
+        desc: "记录学习笔记与技术复盘的博客站点，实现了 Markdown 渲染、标签分类与文章归档。",
+        tech: "Spring Boot / Vue 3 / Markdown"
+      }
+    ]
+  },
+  eval: {
+    title: "个人评价",
+    paragraphs: [
+      "做事有耐心，能沉下心来把一个功能从需求、设计写到上线跑通；遇到问题习惯先自己查文档、翻源码，再带着结论去请教别人。",
+      "认同“能跑起来的代码才是好代码”，注重规范与可读性；乐于把踩过的坑记成笔记，也愿意把学到的东西讲给同学听。"
+    ]
+  },
+  hobbies: {
+    title: "兴趣爱好",
+    items: [
+      { icon: "camera", label: "摄影" },
+      { icon: "ball", label: "篮球" },
+      { icon: "book", label: "阅读" },
+      { icon: "music", label: "音乐" },
+      { icon: "keyboard", label: "折腾数码" }
+    ]
+  },
+  education: {
+    title: "教育经历",
+    years: "2023 — 2027",
+    school: "××大学 · 计算机科学与技术（本科在读）",   // TODO: 替换学校
+    courses: "主修课程：数据结构、操作系统、数据库原理、计算机网络、软件工程",
+    note: "成绩位于专业前列，课余时间主要投入在项目实战与技术自学上。"
+  },
+  footer: {
+    title: "联系我",
+    contacts: [
+      { label: "Email", value: "me@example.com", link: true },      // TODO: 替换
+      { label: "GitHub", value: "github.com/yourname", link: true }, // TODO: 替换
+      { label: "WeChat", value: "your-wechat-id", link: false }      // TODO: 替换
+    ],
+    copyright: "Copyright 2026 林知远 · 简单，但认真。"
+  }
+};
+
+/* 兴趣图标库（编辑该区块时点图标可切换） */
+const ICONS = {
+  camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4V8z" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" stroke-width="1.8"/>',
+  ball: '<circle cx="12" cy="12" r="9" stroke-width="1.8"/><path d="M3 12h18M12 3v18M5.5 5.5c4 4 9 9 13 13M18.5 5.5c-4 4-9 9-13 13" stroke-width="1.4"/>',
+  book: '<path d="M4 5a2 2 0 0 1 2-2h14v18H6a2 2 0 0 0-2 2V5z" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 19a2 2 0 0 1 2-2h14" stroke-width="1.8"/>',
+  music: '<path d="M9 18V5l11-2v13" stroke-width="1.8" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.5" stroke-width="1.8"/><circle cx="17.5" cy="16" r="2.5" stroke-width="1.8"/>',
+  keyboard: '<rect x="3" y="6" width="18" height="12" rx="2" stroke-width="1.8"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10" stroke-width="1.8" stroke-linecap="round"/>',
+  code: '<path d="M8 6L2 12l6 6M16 6l6 6-6 6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  gamepad: '<path d="M6 9h4M8 7v4M15 8h.01M17.5 10.5h.01" stroke-width="1.8" stroke-linecap="round"/><rect x="2" y="6" width="20" height="12" rx="6" stroke-width="1.8"/>',
+  coffee: '<path d="M4 8h12v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8z" stroke-width="1.8"/><path d="M16 9h2a2.5 2.5 0 0 1 0 5h-2M4 21h12" stroke-width="1.8"/>',
+  run: '<circle cx="14" cy="5" r="2" stroke-width="1.8"/><path d="M5 12l4-1 3-3 3 3 4 1M9 20l2-5-2-3 3-3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+};
+const ICON_ORDER = ["camera", "ball", "book", "music", "keyboard", "code", "gamepad", "coffee", "run"];
+
+const STORE_KEY = "homepage-site-config";
+const clone = o => JSON.parse(JSON.stringify(o));
+
+function loadSite() {
+  /* 优先级：导出 HTML 时固化的内容 > 浏览器本地保存 > 默认配置 */
+  if (window.PRESET_SITE && typeof window.PRESET_SITE === "object") {
+    return clone(window.PRESET_SITE);
+  }
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { /* 忽略损坏数据 */ }
+  return clone(DEFAULT_SITE);
+}
+let SITE = loadSite();
+const editSet = new Set();   // 当前处于编辑态的区块 key
+let apiAvailable = false;    // 后端数据库是否可用
+/* 接口地址自适应：线上部署走同源 /api，本地（file:// 或 localhost）走 localhost:3000 */
+const isLocalHost = ["localhost", "127.0.0.1"].includes(location.hostname);
+const API_BASE = (location.protocol.startsWith("http") && !isLocalHost) ? "" : "http://localhost:3000";
+
+/* 启动：优先从数据库读取；数据库为空但浏览器本地有编辑内容时，自动同步入库 */
+async function initSite() {
+  let dbEmpty = false;
+  try {
+    const r = await fetch(API_BASE + "/api/site", { cache: "no-store" });
+    if (r.ok) {
+      const data = await r.json();
+      if (data && typeof data === "object" && data.hero) {
+        SITE = data;
+        apiAvailable = true;
+      } else {
+        dbEmpty = true;   // 数据库可达但没存过内容
+      }
+    }
+  } catch (e) { /* 无后端，走本地 */ }
+  if (!apiAvailable) {
+    const localRaw = localStorage.getItem(STORE_KEY);
+    SITE = loadSite();
+    if (dbEmpty && localRaw) {
+      fetch(API_BASE + "/api/site", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(SITE)
+      }).then(() => {
+        apiAvailable = true;
+        updateApiStatus();
+        toast("检测到本地编辑内容，已自动同步到数据库");
+      }).catch(() => {});
+    }
+  }
+  renderAll();
+  updateApiStatus();
+}
+
+/* ---------- 小工具 ---------- */
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;
+  return n;
+}
+function getPath(obj, path) {
+  return path.split(".").reduce((o, k) => (o == null ? o : o[k]), obj);
+}
+function setPath(obj, path, val) {
+  const ks = path.split(".");
+  const last = ks.pop();
+  const parent = ks.reduce((o, k) => o[k], obj);
+  parent[last] = val;
+}
+function bind(parent, path, tag, cls) {
+  const n = el(tag || "span", cls, getPath(SITE, path));
+  n.dataset.path = path;
+  parent.appendChild(n);
+  return n;
+}
+function svgIcon(name) {
+  const wrap = el("span", "icon");
+  wrap.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#000">${ICONS[name] || ""}</svg>`;
+  return wrap;
+}
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+function syncAll() {
+  document.querySelectorAll("[data-path]").forEach(n => {
+    setPath(SITE, n.dataset.path, n.textContent.trim());
+  });
+}
+function persist() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(SITE));
+  fetch(API_BASE + "/api/site", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(SITE)
+  }).then(() => { apiAvailable = true; updateApiStatus(); })
+    .catch(() => { apiAvailable = false; updateApiStatus(); });
+}
+function updateApiStatus() {
+  const n = document.getElementById("apiStatus");
+  if (!n) return;
+  n.textContent = apiAvailable
+    ? "● 已连接数据库（内容入库：server/homepage.db）"
+    : "○ 未连接后端，内容仅保存在浏览器本地";
+}
+
+/* ---------- 区块编辑控件（每个区块左下角：编辑 / 保存） ---------- */
+function addControls(container, key, label) {
+  const row = el("div", "block-controls");
+  const be = el("button", "blk-btn blk-edit", "编辑");
+  const bs = el("button", "blk-btn blk-save", "保存");
+  be.addEventListener("click", () => {
+    setBlockEditing(container, key, true);
+    toast(`「${label}」编辑中：点击文字直接修改，改完点“保存”`);
+  });
+  bs.addEventListener("click", () => {
+    container.querySelectorAll("[data-path]").forEach(n => {
+      setPath(SITE, n.dataset.path, n.textContent.trim());
+    });
+    persist();
+    setBlockEditing(container, key, false);
+    toast(`「${label}」已保存${apiAvailable ? "到数据库" : "到浏览器本地"}`);
+  });
+  row.appendChild(be);
+  row.appendChild(bs);
+  container.appendChild(row);
+  /* 重渲染后恢复该区块的编辑态（增删条目会触发 renderAll） */
+  if (editSet.has(key)) {
+    setBlockEditing(container, key, true);
+  } else {
+    refreshControls(container);
+  }
+}
+function refreshControls(container) {
+  const editing = container.classList.contains("sec-editing");
+  const be = container.querySelector(".blk-edit");
+  const bs = container.querySelector(".blk-save");
+  if (!be || !bs) return;
+  be.textContent = editing ? "编辑中…" : "编辑";
+  be.disabled = editing;
+  bs.disabled = !editing;
+  bs.classList.toggle("save-ready", editing);
+}
+function setBlockEditing(container, key, on) {
+  if (on) editSet.add(key); else editSet.delete(key);
+  container.classList.toggle("sec-editing", on);
+  container.querySelectorAll("[data-path]").forEach(n => {
+    n.contentEditable = on ? "true" : "false";
+    n.spellcheck = false;
+  });
+  refreshControls(container);
+}
+
+/* ---------- 渲染 ---------- */
+const SECTIONS = [
+  { id: "skills", path: "skills.title" },
+  { id: "projects", path: "projects.title" },
+  { id: "eval", path: "eval.title" },
+  { id: "hobbies", path: "hobbies.title" },
+  { id: "education", path: "education.title" }
+];
+
+function renderNav() {
+  const logo = document.getElementById("logo");
+  logo.textContent = SITE.logo;
+  const links = document.getElementById("navLinks");
+  links.innerHTML = "";
+  SECTIONS.forEach(s => {
+    const a = el("a", "", getPath(SITE, s.path));
+    a.href = "#" + s.id;
+    links.appendChild(a);
+  });
+}
+
+function renderHero() {
+  const w = document.getElementById("heroWrap");
+  w.innerHTML = "";
+  bind(w, "hero.kicker", "p", "kicker");
+  bind(w, "hero.name", "h1");
+  bind(w, "hero.intro", "p", "intro");
+  bind(w, "hero.school", "p", "edu-line");
+  const m = el("div", "motto");
+  m.appendChild(el("div", "bar"));
+  bind(m, "hero.motto", "p");
+  w.appendChild(m);
+  addControls(w, "hero", "首屏");
+  document.title = SITE.hero.name.replace(/^你好，我是/, "") + " · 个人主页";
+}
+
+function secHead(section, num, titlePath) {
+  section.innerHTML = "";
+  const head = el("div", "sec-head");
+  head.appendChild(el("span", "sec-num", num));
+  bind(head, titlePath, "h2");
+  section.appendChild(head);
+  section.appendChild(el("hr", "sec-rule"));
+}
+
+function renderSkills() {
+  const sec = document.getElementById("skills");
+  secHead(sec, "01", "skills.title");
+  SITE.skills.groups.forEach((g, gi) => {
+    const group = el("div", "skill-group");
+    bind(group, `skills.groups.${gi}.title`, "h3");
+    const gDel = el("button", "del", "×");
+    gDel.title = "删除该分组（含其下所有标签）";
+    gDel.addEventListener("click", () => {
+      if (!confirm(`删除分组「${SITE.skills.groups[gi].title}」及其全部标签？`)) return;
+      sec.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+      SITE.skills.groups.splice(gi, 1);
+      persist(); renderAll(); toast("分组已删除并保存");
+    });
+    group.appendChild(gDel);
+    const row = el("div", "chips");
+    g.chips.forEach((c, ci) => {
+      const chip = el("span", "chip");
+      bind(chip, `skills.groups.${gi}.chips.${ci}`, "span");
+      const del = el("button", "del", "×");
+      del.title = "删除该标签";
+      del.addEventListener("click", () => {
+        sec.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+        SITE.skills.groups[gi].chips.splice(ci, 1);
+        persist(); renderAll(); toast("已删除并保存");
+      });
+      chip.appendChild(del);
+      row.appendChild(chip);
+    });
+    const add = el("button", "add", "+ 添加");
+    add.addEventListener("click", () => {
+      sec.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+      SITE.skills.groups[gi].chips.push("新标签");
+      persist(); renderAll(); toast("已添加，可直接修改文字");
+    });
+    row.appendChild(add);
+    group.appendChild(row);
+    sec.appendChild(group);
+  });
+  const addGroup = el("button", "add", "+ 添加分组");
+  addGroup.addEventListener("click", () => {
+    sec.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+    SITE.skills.groups.push({ title: "新分组", chips: ["新标签"] });
+    persist(); renderAll(); toast("已添加分组，可直接修改文字");
+  });
+  sec.appendChild(addGroup);
+  addControls(sec, "skills", "专业技能");
+}
+
+function renderProjects() {
+  const sec = document.getElementById("projects");
+  secHead(sec, "02", "projects.title");
+  const grid = el("div", "projects");
+  SITE.projects.items.forEach((p, pi) => {
+    const card = el("article", "project");
+    bind(card, `projects.items.${pi}.tag`, "span", "tag");
+    bind(card, `projects.items.${pi}.title`, "h3");
+    bind(card, `projects.items.${pi}.desc`, "p");
+    bind(card, `projects.items.${pi}.tech`, "span", "tech");
+    const del = el("button", "del", "×");
+    del.title = "删除该作品";
+    del.addEventListener("click", () => {
+      sec.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+      SITE.projects.items.splice(pi, 1);
+      persist(); renderAll(); toast("已删除并保存");
+    });
+    card.appendChild(del);
+    grid.appendChild(card);
+  });
+  sec.appendChild(grid);
+  const add = el("button", "add", "+ 添加作品");
+  add.style.marginTop = "20px";
+  add.addEventListener("click", () => {
+    sec.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+    SITE.projects.items.push({ tag: "2026 · 项目", title: "新作品标题", desc: "作品简介……", tech: "技术栈" });
+    persist(); renderAll(); toast("已添加作品卡片");
+  });
+  sec.appendChild(add);
+  addControls(sec, "projects", "我的作品");
+}
+
+function renderEval() {
+  const sec = document.getElementById("eval");
+  secHead(sec, "03", "eval.title");
+  const card = el("div", "eval-card");
+  SITE.eval.paragraphs.forEach((_, i) => bind(card, `eval.paragraphs.${i}`, "p"));
+  sec.appendChild(card);
+  addControls(sec, "eval", "个人评价");
+}
+
+function renderHobbies() {
+  const sec = document.getElementById("hobbies");
+  secHead(sec, "04", "hobbies.title");
+  const row = el("div", "hobbies");
+  SITE.hobbies.items.forEach((h, hi) => {
+    const item = el("span", "hobby");
+    const icon = svgIcon(h.icon);
+    icon.classList.add("icon-cycle");
+    icon.title = "点击切换图标";
+    icon.addEventListener("click", () => {
+      if (!editSet.has("hobbies")) return;
+      const idx = ICON_ORDER.indexOf(h.icon);
+      SITE.hobbies.items[hi].icon = ICON_ORDER[(idx + 1) % ICON_ORDER.length];
+      persist(); renderAll();
+    });
+    item.appendChild(icon);
+    bind(item, `hobbies.items.${hi}.label`, "span");
+    const del = el("button", "del", "×");
+    del.title = "删除该兴趣";
+    del.addEventListener("click", () => {
+      sec.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+      SITE.hobbies.items.splice(hi, 1);
+      persist(); renderAll(); toast("已删除并保存");
+    });
+    item.appendChild(del);
+    row.appendChild(item);
+  });
+  const add = el("button", "add", "+ 添加");
+  add.addEventListener("click", () => {
+    sec.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+    SITE.hobbies.items.push({ icon: "coffee", label: "新兴趣" });
+    persist(); renderAll(); toast("已添加，可点图标换样式");
+  });
+  row.appendChild(add);
+  sec.appendChild(row);
+  addControls(sec, "hobbies", "兴趣爱好");
+}
+
+function renderEducation() {
+  const sec = document.getElementById("education");
+  secHead(sec, "05", "education.title");
+  const item = el("div", "edu-item");
+  bind(item, "education.years", "span", "years");
+  const block = el("div");
+  bind(block, "education.school", "h3");
+  bind(block, "education.courses", "p");
+  bind(block, "education.note", "p");
+  item.appendChild(block);
+  sec.appendChild(item);
+  addControls(sec, "education", "教育经历");
+}
+
+function renderFooter() {
+  const w = document.getElementById("footerWrap");
+  w.innerHTML = "";
+  bind(w, "footer.title", "h2");
+  const row = el("div", "contact");
+  SITE.footer.contacts.forEach((c, ci) => {
+    const base = `footer.contacts.${ci}`;
+    let node;
+    if (c.link) {
+      node = el("a");
+      const v = c.value || "";
+      node.href = /^https?:\/\//.test(v) || v.includes("github.com")
+        ? (v.startsWith("http") ? v : "https://" + v)
+        : "mailto:" + v;
+      node.target = "_blank";
+      node.rel = "noopener";
+    } else {
+      node = el("span", "cline");
+    }
+    /* 修复：标签尾部冒号在"渲染拼接+编辑回存"循环中越积越多，渲染前先剥掉 */
+    const cleanLabel = (c.label || "").replace(/[:：\s]+$/, "");
+    const labelSpan = el("span", "", cleanLabel);
+    labelSpan.dataset.path = base + ".label";
+    const colonSpan = el("span", "", ": ");
+    const valueSpan = el("span", "", c.value);
+    valueSpan.dataset.path = base + ".value";
+    node.appendChild(labelSpan);
+    node.appendChild(colonSpan);
+    node.appendChild(valueSpan);
+
+    /* 编辑模式：删除 / 切换链接属性 */
+    const wrap = el("span", "cwrap");
+    wrap.appendChild(node);
+    const gDel = el("button", "del", "×");
+    gDel.title = "删除该联系方式";
+    gDel.addEventListener("click", () => {
+      w.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+      SITE.footer.contacts.splice(ci, 1);
+      persist(); renderAll(); toast("已删除并保存");
+    });
+    wrap.appendChild(gDel);
+    const tg = el("button", "ctoggle" + (c.link ? " on" : ""), "↗");
+    tg.title = c.link ? "当前是链接，点击改为纯文本" : "当前是纯文本，点击改为可点击链接";
+    tg.addEventListener("click", () => {
+      w.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+      SITE.footer.contacts[ci].link = !SITE.footer.contacts[ci].link;
+      persist(); renderAll(); toast(SITE.footer.contacts[ci].link ? "已改为链接" : "已改为纯文本");
+    });
+    wrap.appendChild(tg);
+    row.appendChild(wrap);
+  });
+  const addC = el("button", "add", "+ 添加");
+  addC.addEventListener("click", () => {
+    w.querySelectorAll("[data-path]").forEach(n => setPath(SITE, n.dataset.path, n.textContent.trim()));
+    SITE.footer.contacts.push({ label: "Label", value: "content", link: false });
+    persist(); renderAll(); toast("已添加联系方式，点 ↗ 可切换为链接");
+  });
+  row.appendChild(addC);
+  w.appendChild(row);
+  bind(w, "footer.copyright", "p", "copyright");
+  addControls(w, "footer", "联系方式");
+
+  /* 配置工具：同步入库（内容已统一存数据库，其余导出工具已移除） */
+  const utilRow = el("div", "util-row");
+  const apiStatus = el("span", "api-status", "");
+  apiStatus.id = "apiStatus";
+  utilRow.appendChild(apiStatus);
+  const bSyncDB = el("button", "blk-btn", "同步到数据库");
+  bSyncDB.title = "把当前页面内容存入 server/homepage.db，之后任何方式打开都读这份";
+  bSyncDB.addEventListener("click", () => {
+    syncAll();
+    fetch(API_BASE + "/api/site", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(SITE)
+    }).then(r => {
+      if (r.ok) { apiAvailable = true; updateApiStatus(); toast("已同步到数据库（homepage.db），以后打开都读这份"); }
+      else toast("同步失败：服务返回异常");
+    }).catch(() => toast("同步失败：请先启动后端（cd server && npm start）"));
+  });
+  utilRow.appendChild(bSyncDB);
+  w.appendChild(utilRow);
+  updateApiStatus();
+}
+
+function renderAll() {
+  renderNav();
+  renderHero();
+  renderSkills();
+  renderProjects();
+  renderEval();
+  renderHobbies();
+  renderEducation();
+  renderFooter();
+}
+
+initSite();
+</script>
+</body>
+</html>
