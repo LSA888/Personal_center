@@ -9,7 +9,11 @@ const path = require("path");
 const express = require("express");
 const Database = require("better-sqlite3");
 
-const db = new Database(path.join(__dirname, "homepage.db"));
+/* 数据库路径：本地默认 ./homepage.db；部署时通过 DB_PATH 指向挂载的 Volume 目录以持久化 */
+const dbPath = process.env.DB_PATH || path.join(__dirname, "homepage.db");
+const fs = require("fs");
+fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+const db = new Database(dbPath);
 db.exec(`
   CREATE TABLE IF NOT EXISTS site_config (
     id         INTEGER PRIMARY KEY CHECK (id = 1),
@@ -51,5 +55,5 @@ app.post("/api/site", (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`个人主页服务已启动: http://localhost:${PORT}`);
-  console.log(`数据文件: ${path.join(__dirname, "homepage.db")}`);
+  console.log(`数据文件: ${dbPath}`);
 });
